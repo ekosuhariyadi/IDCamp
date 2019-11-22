@@ -57,6 +57,11 @@ class LeagueListActivity : AppCompatActivity(), LeagueListContract.View {
         }
     }
 
+    override fun onStop() {
+        presenter.onDestroy()
+        super.onStop()
+    }
+
     companion object Injector {
         var injector = { target: LeagueListActivity ->
             target.presenter = DomainModule.presenter

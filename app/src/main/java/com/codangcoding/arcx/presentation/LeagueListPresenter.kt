@@ -36,4 +36,8 @@ class LeagueListPresenter(
 
     override val viewState: LiveData<ViewState> =
         _viewState
+
+    override fun onDestroy() {
+        disposables.dispose()
+    }
 }

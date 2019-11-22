@@ -15,6 +15,8 @@ interface LeagueListContract {
 
         fun loadLeagues()
 
+        fun onDestroy()
+
         val viewState: LiveData<ViewState>
     }
 

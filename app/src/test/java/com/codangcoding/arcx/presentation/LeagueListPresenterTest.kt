@@ -44,6 +44,7 @@ class LeagueListPresenterTest {
         )
         testObserver.assertValueAt(0, ViewState.Loading)
         testObserver.assertValueAt(1, ViewState.Success(expectedLeagues))
+        assertEquals(1, disposables.size())
     }
 
     @Test
@@ -65,5 +66,15 @@ class LeagueListPresenterTest {
                 )
             }
         }
+        assertEquals(1, disposables.size())
+    }
+
+    @Test
+    fun should_dispose_disposables_on_destroy() {
+        assertEquals(false, disposables.isDisposed)
+
+        presenter.onDestroy()
+
+        assertEquals(true, disposables.isDisposed)
     }
 }
