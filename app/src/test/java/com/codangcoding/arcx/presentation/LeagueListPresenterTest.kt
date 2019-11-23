@@ -6,9 +6,9 @@ import com.codangcoding.arcx.domain.usecase.GetLeagueUseCase
 import com.codangcoding.arcx.presentation.LeagueListContract.ViewState
 import com.codangcoding.arcx.presentation.model.LeagueModel
 import com.codangcoding.arcx.util.LiveDataTestObserver
-import com.codangcoding.arcx.util.TestAppSchedulers
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
+import com.codangcoding.arcx.util.TestAppDispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -17,23 +17,21 @@ import org.mockito.Mockito
 class LeagueListPresenterTest {
 
     private val useCase = Mockito.mock(GetLeagueUseCase::class.java)
-    private val disposables = CompositeDisposable()
-    private val presenter = LeagueListPresenter(useCase, disposables, TestAppSchedulers)
+    private val jobs = Job()
+    private val presenter = LeagueListPresenter(useCase, jobs, TestAppDispatchers)
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     @Test
-    fun load_leagues_success() {
+    fun load_leagues_success() = runBlocking {
         val testObserver = LiveDataTestObserver<ViewState>()
         presenter.viewState.observeForever(testObserver)
 
         Mockito.`when`(useCase.execute())
             .thenReturn(
-                Single.just(
-                    listOf(
-                        League("1", "EPL", "Soccer")
-                    )
+                listOf(
+                    League("1", "EPL", "Soccer")
                 )
             )
 
@@ -44,16 +42,16 @@ class LeagueListPresenterTest {
         )
         testObserver.assertValueAt(0, ViewState.Loading)
         testObserver.assertValueAt(1, ViewState.Success(expectedLeagues))
-        assertEquals(1, disposables.size())
+        assertEquals(1, jobs.children.count())
     }
 
     @Test
-    fun should_emit_failure_when_error() {
+    fun should_emit_failure_when_error() = runBlocking {
         val testObserver = LiveDataTestObserver<ViewState>()
         presenter.viewState.observeForever(testObserver)
 
         Mockito.`when`(useCase.execute())
-            .thenReturn(Single.error(IllegalArgumentException("Ada error nih")))
+            .thenThrow(IllegalArgumentException("Ada error nih"))
 
         presenter.loadLeagues()
 
@@ -66,15 +64,15 @@ class LeagueListPresenterTest {
                 )
             }
         }
-        assertEquals(1, disposables.size())
+        assertEquals(1, jobs.children.count())
     }
 
     @Test
-    fun should_dispose_disposables_on_destroy() {
-        assertEquals(false, disposables.isDisposed)
+    fun should_dispose_disposables_on_destroy() = runBlocking {
+        assertEquals(false, jobs.isCancelled)
 
         presenter.onDestroy()
 
-        assertEquals(true, disposables.isDisposed)
+        assertEquals(true, jobs.isCancelled)
     }
 }

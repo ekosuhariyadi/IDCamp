@@ -4,7 +4,8 @@ import com.codangcoding.arcx.domain.model.League
 import com.codangcoding.arcx.external.network.LeagueService
 import com.codangcoding.arcx.external.network.model.LeagueDTO
 import com.codangcoding.arcx.external.network.model.LeagueResponse
-import io.reactivex.Single
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.Mockito
 
@@ -14,15 +15,13 @@ class DefaultLeagueRepositoryTest {
     private val repository = DefaultLeagueRepository(leagueService)
 
     @Test
-    fun should_return_soccer_league_only() {
+    fun should_return_soccer_league_only() = runBlocking {
         Mockito.`when`(leagueService.allLeagues())
             .thenReturn(
-                Single.just(
-                    LeagueResponse(
-                        listOf(
-                            LeagueDTO("1", "EPL", "Soccer"),
-                            LeagueDTO("2", "Major League", "Baseball")
-                        )
+                LeagueResponse(
+                    listOf(
+                        LeagueDTO("1", "EPL", "Soccer"),
+                        LeagueDTO("2", "Major League", "Baseball")
                     )
                 )
             )
@@ -30,9 +29,8 @@ class DefaultLeagueRepositoryTest {
         val expectedValue = listOf(
             League("1", "EPL", "Soccer")
         )
-        repository.leagues()
-            .test()
-            .assertComplete()
-            .assertValue { it == expectedValue }
+        val result = repository.leagues()
+
+        assertEquals(expectedValue, result)
     }
 }

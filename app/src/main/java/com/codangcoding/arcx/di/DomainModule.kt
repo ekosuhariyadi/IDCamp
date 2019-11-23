@@ -6,8 +6,8 @@ import com.codangcoding.arcx.domain.usecase.DefaultGetLeagueUseCase
 import com.codangcoding.arcx.domain.usecase.GetLeagueUseCase
 import com.codangcoding.arcx.presentation.LeagueListContract
 import com.codangcoding.arcx.presentation.LeagueListPresenter
-import com.codangcoding.arcx.util.DefaultAppSchedulers
-import io.reactivex.disposables.CompositeDisposable
+import com.codangcoding.arcx.util.DefaultAppDispatchers
+import kotlinx.coroutines.Job
 
 object DomainModule {
 
@@ -20,6 +20,6 @@ object DomainModule {
     }
 
     val presenter: LeagueListContract.Presenter by lazy {
-        LeagueListPresenter(useCase, CompositeDisposable(), DefaultAppSchedulers)
+        LeagueListPresenter(useCase, Job(), DefaultAppDispatchers)
     }
 }
