@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 
 object NetworkModule {
@@ -22,7 +21,6 @@ object NetworkModule {
         Retrofit.Builder()
             .baseUrl("https://www.thesportsdb.com/api/v1/json/${BuildConfig.API_KEY}/")
             .client(OkHttpClient())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create(objectMapper))
             .build()
     }
